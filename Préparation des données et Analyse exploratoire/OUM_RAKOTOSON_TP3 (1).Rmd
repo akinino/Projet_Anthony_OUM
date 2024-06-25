@@ -1,0 +1,188 @@
+---
+title: "OUM_RAKOTOSON_TP3"
+author: "OUM & RAKOTOSON"
+date: "2023-09-27"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+---
+
+# TD 3 Analyse des Correspondances Multiples
+
+# 1 Pokemon
+
+1.1 Chargement des donnees et statistiques elementaires
+
+1.Telechargez la bibliotheque ade4 et la bibliotheque adegraphics
+```{r Telechargement des bibliotheques ade4 et adegraphics}
+#install.packages(c("ade4","adegraphics"))
+```
+
+2. Chargez les donnees du fichier
+```{r Chargement des donnees du fichier}
+url <- "https://tinyurl.com/y4y6a86m"
+poke <- read.csv(url, na.strings=c("","NA"))
+```
+
+3. Associez ce jeu de donnees a un jeu de donnees de type dataframe que vous appelerez poke
+```{r  Association du jeu de donnees a un jeu de donnees de type dataframee}
+poke <- as.data.frame(poke)
+#poke
+```
+
+4. Transformez la variable Generation en type factor
+```{r Transformation de la variable Generation en type factor}
+poke$Generation <- as.factor(poke$Generation)
+#poke$Generation
+```
+
+5. Creez un sous jeu de donnees
+```{r Creation d un sous jeu de donnees}
+poke.x <- poke[, c("Type.1", "Generation", "Legendary")]
+#poke.x
+poke.x$Type.1 <- as.factor(poke.x$Type.1)
+poke.x$Legendary <- as.factor(poke.x$Legendary)
+poke.x$Generation <- as.factor(poke.x$Generation)
+```
+
+6. Appliquez la fonction summary() au jeu de donnees poke de type dataframe
+```{r Application la fonction summary}
+summary(poke)
+```
+
+1.2 ACM avec ade4
+
+7. A l aide des bibliotheques ade4 et adegraphics, appliquez la fonction dudiacm au jeu de données poke.x
+```{r application de la fonction dudiacm}
+library(ade4)
+library(adegraphics)
+
+res.acm.poke<-dudi.acm(poke.x,scannf=FALSE)
+res.acm.poke
+```
+
+8. Sauriez-vous dire le nombre total de valeurs propres ? Affichez les valeurs
+propres
+```{r Valeurs propres}
+#install.packages("factoextra")
+
+library(adegraphics)
+library(factoextra)
+
+fviz_screeplot(res.acm.poke)
+get_eig(res.acm.poke)
+```
+-> Le nombre total de valeurs propres est le nombre total de dimensions qui est egale a 23. Nous avons donc une valeur propre egale a 23.
+
+C est a vous!
+
+9. Affichez et interpretez les rapports de correlation pour le premier et le deuxieme axe (en utilisant la liste de l objet res.acm.poke).
+```{r Affichage dles rapports de correlation pour le premier}
+head(inertia.dudi(res.acm.poke))
+scatter(res.acm.poke)
+```
+-> On peut faire la distinction entre les types "Fairy" et "Dragon" toutefois les autres ne sont pas distinguables entre eux, par ailleurs seule la generation 6 est distingable et enfin nous pouvons savoir si oui ou non le pokemon est legendaire.
+
+10. Quelles modalites des trois facteurs decrivent le mieux le premier axe ?
+```{r modalites des trois facteurs }
+contributions_first_axis <- res.acm.poke$co[, 1]^2
+contributions_table <- data.frame(Modalité = row.names(res.acm.poke$co), Contribution = contributions_first_axis)
+contributions_table <- contributions_table[order(contributions_table$Contribution, decreasing = TRUE), ]
+print(contributions_table)
+```
+-> LEs modalites des trois facteurs decrivent le mieux le premier axe sont Type.1.Flying avec une contribution de 14.21, Type.1.Dragon	avec une contribution de 5.76 et	Legendary.True avec une contribution de 5.54.
+
+11. A l aide de la bibliotheque vcd, utilisez la fonction assocstats() sur votre
+sous jeu de donnees (attention il faut le transformer en tableau de contingence
+avant). Commentez.
+```{r Utilisation de la fonction assocstats}
+#install.packages("vcd")
+library(vcd)
+
+table_contingence <- xtabs(~ Type.1 + Generation + Legendary, data = poke.x)
+assoc_stats <- assocstats(table_contingence)
+assoc_stats
+```
+-> Le test du rapport de vraisemblance a un chi2 de 170.31 avec 85 degres de liberte et une tres faible p-valeur (1.1698e-07).Cela signifie que lorsque "Legendary" est faux, il y a une forte association entre les variables "Legendary" et "Generation", ce qui est confirmé par des tests très significatifs (p-valeurs très proches de zéro). Cela suggère que la génération d'un Pokémon est fortement liée à son statut non-légendaire. La mesure de l'association indique également une liaison modérée entre les variables, avec un coefficient de contingence de 0.441 et un coefficient de Cramer de 0.22.
+
+-> Quand un Pokemon est legendaire, il n'y a pas suffisamment de preuves pour etablir une association significative avec la variable "Generation". Cela est confirme par un test de rapport de vraisemblance avec un chi2 de 89.428 et 85 degres de liberte, donnant une p-valeur de 0.35017. Il est important de noter que le test du Chi2 ne peut pas etre applique ici a cause de frequences attendues nulles. Cela signifie que certaines mesures d'association (comme le Phi-Coefficient, le Coefficient de Contingence et le Cramer's V) ne sont pas calculables en raison de valeurs indefinies dans certaines cellules.
+
+12. Affichez la matrice de corrélation sur les variables quantitatives suivantes : Attack, Defense, Sp..Atk, Sp..Def et Speed.
+```{r Matrice de corrélation}
+variables_quantitatives <- poke[, c("Attack", "Defense", "Sp..Atk", "Sp..Def", "Speed")]
+
+cor_matrix <- cor(variables_quantitatives)
+cor_matrix
+```
+
+1.3 ACP mixte
+
+C est a vous!
+
+13. Telechargez la bibliotheque PCAmixdata et chargez-la.
+```{r Téléchargement de la bibliothèque PCAmixdata}
+#install.packages("PCAmixdata")
+library(PCAmixdata)
+```
+
+14. Appliquez la fonction PCAmix() sur les variables quantitatives suivante :
+Attack,Defense,Sp..Atk,Sp..Def,Speed et la variable qualitative : Type_1.
+```{r Application de la fonction PCAmix}
+pcamix.temp <- PCAmix(subset(poke, select=c(7:11)), subset(poke, select=c(3)))
+```
+
+15. Affichez les valeurs propres
+```{r Affichage des valeurs propres}
+print(round(pcamix.temp$eig))
+```
+
+16. Affichez les correlations des variables quantitatives suivantes :
+Attack,Defense,Sp..Atk,Sp..Def,Speed.
+Nous rappelons que pour une variable quantitative, les rapports de correlation au carre sont la corrélation au carre entre la variable quantitative et les
+composantes principales.
+```{r ffichage des correlations des variables}
+print(round(pcamix.temp$quanti.cor))
+```
+
+17. Affichez les coordonnees des modalites de la variable qualitative : Type_1
+```{r Affichage des coordonnees des modalites de la variable qualitative}
+print(round(pcamix.temp$categ.coord))
+```
+
+C est a vous !
+
+18. Realisez cette ACP mixte en remplaçant le facteur Type_1 par le nom des
+pokemons.
+```{r Realisation de d ACP mixte en remplaçant le facteur Type_1 par le nom des pokemons}
+#install.packages("PCAmixdata")
+library(PCAmixdata)
+pca_result_with_names <- PCAmix(subset(poke, select=c(7:11)), subset(poke, select=c(2)))
+round(pca_result_with_names$eig)
+round(pca_result_with_names$quanti.cor)
+round(pca_result_with_names$categ.coord)
+```
+
+19. Observez et commentez les coordonnees du pokemon Pikachu sur l’ACP
+mixte.
+```{r Coordonnees du pokemon Pikachu sur l ACP mixte}
+pikachu_coords <- pca_result_with_names$ind$coord[poke$Name == "Pikachu",]
+pikachu_coords
+```
+-> "Pikachu" se distingue des autres individus principalement sur les deux premieres dimensions de l ACP car il est relativement eloigne de l origine. Tandis qu il est moins distinctif sur les autres dimensions car les valeurs sur les autres dimensions sont plus proches de zero.
+
+20. Appliquez la fonction FAMD() au jeu de donnees poke. Observez le resultat
+avec la fonction summary().
+```{r Application la fonction FAMD}
+library(FactoMineR)
+poke["Type.2"] <- NULL
+famd_result <- FAMD(poke)
+```
+```{r Observation du resultat avec la fonction summary}
+summary(famd_result)
+```
+-> L Analyse FAMD sur les donnees Pokemon a montre que les deux premieres dimensions expliquent presque 63% de la variation totale. Certains Pokemon, comme "Pikachu", se démarquent particulierement sur ces deux dimensions. Les caracteristiques comme "Attack", "Defense" et "Sp..Atk" ont une influence importante sur la structure des donnees. De plus, les differentes especes de Pokemon montrent des associations distinctes avec ces dimensions.
+
+21. Expliquez ce qu est la fonction FAMD() et son utilite.
+-> La fonction FAMD permet d'analyser des donnees mixtes comprenant des variables qualitatives et quantitatives ensemble. Elle offre une vue d ensemble de la structure des donnees en prenant en compte ces deux types de variables simultanement.
+
+-> FAMD nous aide à mieux comprendre les relations entre les variables et les différents types de Pokémon, en mettant en lumière les caractéristiques les plus importantes.
