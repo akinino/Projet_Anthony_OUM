@@ -5,7 +5,7 @@ https://gitlab.esiea.fr/aoum/projet_cv.git
 
 # Projets de 5ème Année en Intelligence Artificielle et Data Science
 
-Bienvenue dans ce dépôt Git, qui répertorie plusieurs projets réalisés au cours de cette année 5ème année académique en d'Intelligence Artificielle et Data Science. Chaque projet dans ce dépôt reflète les compétences et connaissances acquises au cours de cette année, couvrant divers aspects de l'IA et de la science des données.
+Bienvenue dans ce dépôt Git, qui répertorie plusieurs projets réalisés au cours de cette 5ème année académique en d'Intelligence Artificielle et Data Science. Chaque projet dans ce dépôt reflète les compétences et connaissances acquises au cours de cette année, couvrant divers aspects de l'IA et de la science des données.
 
 ## Objectifs des projets
 
